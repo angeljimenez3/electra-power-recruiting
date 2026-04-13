@@ -22,6 +22,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '4507748472836442');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=4507748472836442&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest" defer></script>
 
@@ -535,8 +553,8 @@
                         </div>
                         <div class="form-group">
                             <label for="telefono" data-es="Teléfono / WhatsApp" data-en="Phone / WhatsApp">Teléfono / WhatsApp</label>
-                            <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder=" " pattern="[0-9\-\+\(\)\s]{7,15}">
-                            <span class="form-error" data-es="Por favor ingresa un número válido" data-en="Please enter a valid number">Por favor ingresa un número válido</span>
+                            <input type="tel" id="telefono" name="telefono" required autocomplete="tel" placeholder=" " inputmode="numeric" maxlength="15">
+                            <span class="form-error" data-es="Ingresa un número de teléfono válido (mínimo 10 dígitos)" data-en="Enter a valid phone number (minimum 10 digits)">Ingresa un número de teléfono válido (mínimo 10 dígitos)</span>
                         </div>
                         <div class="form-group">
                             <label for="zona" data-es="¿En qué zona de Miami vives?" data-en="What area of Miami do you live in?">¿En qué zona de Miami vives?</label>

@@ -3,19 +3,14 @@
 // Paste this into Extensions → Apps Script
 // ============================================
 
-const NOTIFICATION_EMAIL = 'info@electrapowerco.com';
+var NOTIFICATION_EMAIL = 'info@electrapowerco.com';
 
 function doGet(e) {
-  return handleSubmission(e.parameter || {});
-}
+  var data = e.parameter || {};
+  var callback = data.callback || '';
 
-function doPost(e) {
-  return handleSubmission(e.parameter || {});
-}
-
-function handleSubmission(data) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
 
     sheet.appendRow([
       new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }),
@@ -23,7 +18,7 @@ function handleSubmission(data) {
       data.telefono || '',
       data.zona || '',
       data.otraCiudad || '',
-      data.edad || '',
+      data.edad || ''
     ]);
 
     var subject = 'Nueva Aplicacion — ' + (data.nombre || 'Sin nombre');
@@ -36,13 +31,27 @@ function handleSubmission(data) {
 
     MailApp.sendEmail(NOTIFICATION_EMAIL, subject, body);
 
+    if (callback) {
+      return ContentService
+        .createTextOutput(callback + '({"status":"ok"})')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
     return ContentService
       .createTextOutput('ok')
       .setMimeType(ContentService.MimeType.TEXT);
 
   } catch (error) {
+    if (callback) {
+      return ContentService
+        .createTextOutput(callback + '({"status":"error"})')
+        .setMimeType(ContentService.MimeType.JAVASCRIPT);
+    }
     return ContentService
-      .createTextOutput('error: ' + error.toString())
+      .createTextOutput('error')
       .setMimeType(ContentService.MimeType.TEXT);
   }
+}
+
+function doPost(e) {
+  return doGet(e);
 }

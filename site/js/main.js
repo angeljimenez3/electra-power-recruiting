@@ -119,6 +119,17 @@ function initForm() {
 
     if (!form) return;
 
+    // Phone field — only allow digits, +, (, ), -, space. Max 15 chars.
+    const phoneInput = document.getElementById('telefono');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value.replace(/[^0-9+\-() ]/g, '');
+            if (phoneInput.value.replace(/\D/g, '').length > 15) {
+                phoneInput.value = phoneInput.value.slice(0, -1);
+            }
+        });
+    }
+
     // Show/hide "otra ciudad" field
     if (zonaSelect && otraCiudadGroup) {
         zonaSelect.addEventListener('change', () => {
@@ -152,11 +163,11 @@ function initForm() {
             }
         });
 
-        // Phone validation
+        // Phone validation — 10-15 digits only
         const phone = document.getElementById('telefono');
         if (phone && phone.value) {
-            const phoneClean = phone.value.replace(/[\s\-\(\)]/g, '');
-            if (phoneClean.length < 7) {
+            const digitsOnly = phone.value.replace(/\D/g, '');
+            if (digitsOnly.length < 10 || digitsOnly.length > 15) {
                 phone.closest('.form-group').classList.add('error');
                 isValid = false;
             }
@@ -194,10 +205,9 @@ function initForm() {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
 
-        // Send to Google Sheets via hidden iframe GET
-        const GOOGLE_SHEET_URL = 'https://script.google.com/a/macros/elitehomeleads.io/s/AKfycbzjNwgRxN4dfPWHUdid-cTJ7qXBfr7CPTy3ezwZmg4eXyzTwUHJNkXGmXh5adnmUOZu/exec';
+        // Send to Google Sheets
+        const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxtzu942iS4sUTLCUeAkrqZkpY7FNvLvyMYT9zb-1kUnnlcxTsPRa9LRdz982niqrew/exec';
 
-        // Build full URL with all data as query params
         const params = new URLSearchParams();
         params.append('nombre', data.nombre || '');
         params.append('telefono', data.telefono || '');
@@ -205,23 +215,24 @@ function initForm() {
         params.append('otraCiudad', data.otraCiudad || '');
         params.append('edad', data.edad || '');
 
-        // Load in hidden iframe (follows redirects and keeps params)
-        let iframe = document.getElementById('sheet-iframe');
-        if (iframe) iframe.remove();
-        iframe = document.createElement('iframe');
-        iframe.id = 'sheet-iframe';
-        iframe.style.display = 'none';
-        iframe.src = GOOGLE_SHEET_URL + '?' + params.toString();
-        document.body.appendChild(iframe);
-
-        // Show success
-        setTimeout(() => {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
+        fetch(GOOGLE_SHEET_URL + '?' + params.toString())
+        .then(() => {
+            if (typeof fbq === 'function') {
+                fbq('track', 'Lead');
+            }
             form.hidden = true;
             formSuccess.hidden = false;
             formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 2000);
+        })
+        .catch(() => {
+            form.hidden = true;
+            formSuccess.hidden = false;
+            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        })
+        .finally(() => {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+        });
     });
 
     // Inline validation on blur
